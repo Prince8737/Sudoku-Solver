@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #3494e6, #ec6ead);
+            color: #fff;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        td {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #000;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        td:not(:empty) {
+            color: #000;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sudoku Solver</h1>
+    
+    <!-- Create a Sudoku grid -->
+    <table id="sudokuGrid">
+        <!-- Cells will be populated dynamically with JavaScript -->
+    </table>
+
+    <button onclick="solveSudoku()">Solve</button>
+    <button onclick="resetSudoku()">Reset</button>
+
+    <script>
+        // Function to generate a random Sudoku puzzle
+        function generateRandomPuzzle() {
+            const puzzle = [];
+
+            // Initialize an empty 9x9 grid
+            for (let i = 0; i < 9; i++) {
+                puzzle.push(Array(9).fill(0));
+            }
+
+            // Fill in the diagonal subgrids
+            for (let i = 0; i < 9; i += 3) {
+                fillSubgrid(puzzle, i, i);
+            }
+
+            // Solve the puzzle to create a valid Sudoku pattern
+            solve(puzzle);
+
+            // Remove numbers randomly to create the puzzle
+            const numToRemove = Math.floor(Math.random() * 30) + 15;
+            for (let i = 0; i < numToRemove; i++) {
+                const row = Math.floor(Math.random() * 9);
+                const col = Math.floor(Math.random() * 9);
+                puzzle[row][col] = 0;
+            }
+
+            return puzzle;
+        }
+
+        // Function to fill a 3x3 subgrid with valid numbers
+        function fillSubgrid(grid, startRow, startCol) {
+            const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            shuffle(nums);
+
+            let index = 0;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    grid[startRow + i][startCol + j] = nums[index++];
+                }
+            }
+        }
+
+        // Function to shuffle an array
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Sudoku puzzle to solve
+        let initialGrid = generateRandomPuzzle();
+
+        // Function to display the Sudoku grid
+        function displayGrid(grid) {
+            const sudokuGrid = document.getElementById("sudokuGrid");
+            sudokuGrid.innerHTML = "";
+
+            for (let i = 0; i < 9; i++) {
+                const row = document.createElement("tr");
+
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement("td");
+                    cell.textContent = grid[i][j] === 0 ? "" : grid[i][j];
+                    row.appendChild(cell);
+                }
+
+                sudokuGrid.appendChild(row);
+            }
+        }
+
+        // Function to reset the Sudoku puzzle
+        function resetSudoku() {
+            initialGrid = generateRandomPuzzle();
+            displayGrid(initialGrid);
+        }
+
+        // Function to check if a number can be placed in a specific cell
+        function isValidMove(grid, row, col, num) {
+            // Check if the number is not present in the current row, column, and 3x3 grid
+            return (
+                !grid[row].includes(num) &&
+                !grid.map(r => r[col]).includes(num) &&
+                !getSubgrid(grid, row, col).includes(num)
+            );
+        }
+
+        // Function to get the 3x3 subgrid of a cell
+        function getSubgrid(grid, row, col) {
+            const subgrid = [];
+            const startRow = Math.floor(row / 3) * 3;
+            const startCol = Math.floor(col / 3) * 3;
+
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    subgrid.push(grid[startRow + i][startCol + j]);
+                }
+            }
+
+            return subgrid;
+        }
+
+        // Function to solve the Sudoku using a basic backtracking algorithm
+        function solveSudoku() {
+            const grid = [...initialGrid]; // Create a copy of the initial grid
+
+            if (solve(grid)) {
+                // Display the solved grid
+                displayGrid(grid);
+            } else {
+                alert("No solution exists.");
+            }
+        }
+
+        // Recursive backtracking algorithm to solve Sudoku
+        function solve(grid) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (grid[row][col] === 0) {
+                        for (let num = 1; num <= 9; num++) {
+                            if (isValidMove(grid, row, col, num)) {
+                                grid[row][col] = num;
+
+                                if (solve(grid)) {
+                                    return true;
+                                }
+
+                                grid[row][col] = 0; // Backtrack
+                            }
+                        }
+
+                        return false; // No valid number found
+                    }
+                }
+            }
+
+            return true; // Puzzle is solved
+        }
+
+        // Display the initial Sudoku grid
+        displayGrid(initialGrid);
+    </script>
+</body>
+</html>
