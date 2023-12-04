@@ -34,4 +34,4 @@ To run the Sudoku Solver locally, follow these steps:
 
  Clone the repository:
 
- git clone https://github.com/Prince8737/sudoku-solver.git
+ git clone https://github.com/Prince8737/sudoku-Solver.git
