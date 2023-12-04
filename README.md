@@ -12,9 +12,7 @@ Welcome to the Sudoku Solver repository! This web-based Sudoku solver is designe
 
 ## Live Demo
 
-Check out the live demo [here](#). 
-
-[https://prince8737.github.io/Sudoku-Solver/]
+Check out the live demo [here](https://prince8737.github.io/Sudoku-Solver/). 
 
 ## Usage
 
